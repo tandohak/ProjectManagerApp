@@ -15,11 +15,27 @@
       },
       "oauth_client": [
         {
-          "client_id": "141501242517-2lk7nt1l6jlf9ouc980vcfspd4os4qfs.apps.googleusercontent.com",
+          "client_id": "141501242517-meuf70ttvd3rmqmla64aoqvvllhig832.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.or.dgit.bigdata.projectmanagerapp",
+            "certificate_hash": "c23feaf53a59cfbaf07c0dac25acbd316abbf515"
+          }
+        },
+        {
+          "client_id": "141501242517-n4r9rvn2g5ulvj9e83u6dosqkoji4uir.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "kr.or.dgit.bigdata.projectmanagerapp",
             "certificate_hash": "8a7ccf4736868644b583ae2780ab1c7cfb519649"
+          }
+        },
+        {
+          "client_id": "141501242517-8lub359gvqutuocdgt62u70pt3ng1m4q.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.or.dgit.bigdata.projectmanagerapp",
+            "certificate_hash": "5eb64af214ee3a4a2c5e18cc2ecc5e0c90a5eef5"
           }
         },
         {

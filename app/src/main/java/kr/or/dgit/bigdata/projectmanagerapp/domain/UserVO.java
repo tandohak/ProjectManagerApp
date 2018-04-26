@@ -1,8 +1,11 @@
 package kr.or.dgit.bigdata.projectmanagerapp.domain;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
-public class UserVO {
+public class UserVO implements Parcelable{
 	private int uno;
 	private String email;
 	private String firstName;
@@ -17,9 +20,9 @@ public class UserVO {
 
 	
 	public UserVO() {}
-	
+
 	public UserVO(int uno, String email, String firstName, String lastName, String phone, String addr, String password,
-			Date birthday, int grade, Date joinDate, String photoPath) {
+				  Date birthday, int grade, Date joinDate, String photoPath) {
 		super();
 		this.uno = uno;
 		this.email = email;
@@ -34,6 +37,33 @@ public class UserVO {
 		this.photoPath = photoPath;
 	}
 
+	protected UserVO(Parcel in) {
+		final ClassLoader cl = getClass().getClassLoader();
+
+		uno = in.readInt();
+		email = in.readString();
+		firstName = in.readString();
+		lastName = in.readString();
+		phone = in.readString();
+		addr = in.readString();
+		password = in.readString();
+		birthday = (Date) in.readValue(cl);
+		grade = in.readInt();
+		joinDate = (Date) in.readValue(cl);
+		photoPath = in.readString();
+	}
+
+	public static final Creator<UserVO> CREATOR = new Creator<UserVO>() {
+		@Override
+		public UserVO createFromParcel(Parcel in) {
+			return new UserVO(in);
+		}
+
+		@Override
+		public UserVO[] newArray(int size) {
+			return new UserVO[size];
+		}
+	};
 
 	public int getUno() {
 		return uno;
@@ -130,4 +160,23 @@ public class UserVO {
 				+ ", grade=" + grade + ", joinDate=" + joinDate + ", photoPath=" + photoPath + "]";
 	}
 
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(this.uno);
+		dest.writeString(this.email);
+		dest.writeString(this.firstName);
+		dest.writeString(this.lastName);
+		dest.writeString(this.phone);
+		dest.writeString(this.addr);
+		dest.writeString(this.password);
+		dest.writeValue(this.birthday);
+		dest.writeInt(this.grade);
+		dest.writeValue(this.joinDate);
+		dest.writeString(this.photoPath);
+	}
 }

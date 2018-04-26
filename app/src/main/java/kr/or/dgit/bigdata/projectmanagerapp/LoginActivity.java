@@ -1,15 +1,14 @@
 package kr.or.dgit.bigdata.projectmanagerapp;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -24,8 +23,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
 import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
-import kr.or.dgit.bigdata.projectmanagerapp.network.JsonParser;
+import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserUtil;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private static final String TAG = "GoogleActivity";
@@ -36,16 +39,43 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     // [END declare_auth]
 
     private GoogleSignInClient mGoogleSignInClient;
-    private TextView mStatusTextView;
-    private TextView mDetailTextView;
     private HttpRequestTask mHttpRequestTask;
-
+    Boolean isLogout;
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    String aa = (String)msg.obj;
-                    mDetailTextView.setText(aa);
+                    String result = (String)msg.obj;
+
+                    if(!result.equals("")){
+                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+
+                        JsonParserUtil<UserVO> jsonParserUtil = new JsonParserUtil() {
+                            @Override
+                            public UserVO itemParse(JSONObject order) throws JSONException{
+                                UserVO vo = new UserVO();
+
+                                vo.setUno(order.getInt("uno"));
+                                vo.setFirstName(order.getString("firstName"));
+                                vo.setLastName(order.getString("lastName"));
+                                vo.setGrade(order.getInt("grade"));
+                                vo.setPhotoPath(order.getString("photoPath"));
+
+                                return vo;
+                            }
+                        };
+
+                        UserVO vo =  jsonParserUtil.parsingJson(result);
+                        Log.d(TAG,vo.toString());
+
+                        intent.putExtra("userVo",vo);
+                        startActivity(intent);
+                        LoginActivity.this.finish();
+                    }else{
+                        Intent intent = new Intent(LoginActivity.this,JoinUserActivity.class);
+                        startActivity(intent);
+                    }
+
                     break;
                 }
             }
@@ -57,13 +87,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 // Views
-        mStatusTextView = findViewById(R.id.status);
-        mDetailTextView = findViewById(R.id.detail);
 
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
-        findViewById(R.id.sign_out_button).setOnClickListener(this);
-        findViewById(R.id.disconnect_button).setOnClickListener(this);
 
         // [START config_signin]
         // Configure Google Sign In
@@ -78,8 +104,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
+        isLogout = getIntent().getBooleanExtra("logout",false);
 
-
+        if(isLogout){
+            revokeAccess();
+        }
 
     }
 
@@ -188,25 +217,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         hideProgressDialog();
         if (user != null) {
             String email = user.getEmail();
-            mStatusTextView.setText(getString(R.string.google_status_fmt, user.getEmail()));
-            mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
 //            Uri.Builder builder = new Uri.Builder();
 //            builder.appendQueryParameter(getString(R.string.google_status_fmt, user.getEmail()));
 
             mHttpRequestTask = new HttpRequestTask(this ,"POST",email,handler);
-            mHttpRequestTask.execute("http://hongyoonpyo.cafe24.com/projectManager/register/exists");
-
-            // 비동기로 실행될 코드
-
-            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+            mHttpRequestTask.execute("http://hongyoonpyo.cafe24.com/projectManager/register/googleLogin");
         } else {
-            mStatusTextView.setText(R.string.signed_out);
-            mDetailTextView.setText(null);
-
-            findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            if(isLogout){
+                Toast.makeText(this, "로그 아웃하였습니다.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -215,12 +235,12 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         int i = v.getId();
         if (i == R.id.sign_in_button) {
             signIn();
-        } else if (i == R.id.sign_out_button) {
+        } /*else if (i == R.id.sign_out_button) {
             Log.d(TAG,"sing_out_button click");
             signOut();
         } else if (i == R.id.disconnect_button) {
             Log.d(TAG,"disconnect_button click");
             revokeAccess();
-        }
+        }*/
     }
 }

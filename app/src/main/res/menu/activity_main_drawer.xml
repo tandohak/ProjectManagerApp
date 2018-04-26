@@ -35,4 +35,12 @@
         </menu>
     </item>
 
+    <item android:title="">
+        <menu>
+            <item
+                android:id="@+id/logout"
+                android:icon="@drawable/common_full_open_on_phone"
+                android:title="로그아웃"/>
+        </menu>
+    </item>
 </menu>

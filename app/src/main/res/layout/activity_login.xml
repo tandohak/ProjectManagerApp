@@ -73,47 +73,13 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/sign_out_and_disconnect"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="sign_out_and_disconnect"
-                android:visibility="visible"
-                android:textStyle="bold" />
-            <Button
-                android:id="@+id/sign_out_button"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="sign_out"/>
-
-            <Button
-                android:id="@+id/disconnect_button"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="disconnect" />
-
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/sign_in_button"
                 android:layout_width="match_parent"
                 android:visibility="visible"
                 android:layout_height="wrap_content" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="aaa"
-                android:id="@+id/status"/>
 
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Firebase User ID: 123456789abc"
-                android:id="@+id/detail"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>
