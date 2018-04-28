@@ -119,7 +119,7 @@
                 android:onClick="onClick"
                 android:textColor="#fff"
                 android:background="#00BCD4"
-                android:text="워크스페이스 가기 >"/>
+                android:text="워크스페이스 만들기 "/>
 
         </LinearLayout>
 

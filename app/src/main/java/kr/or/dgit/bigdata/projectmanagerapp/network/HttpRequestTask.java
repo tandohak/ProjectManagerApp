@@ -8,18 +8,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import org.w3c.dom.Text;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 
 /**
  * Created by DGIT3-9 on 2018-04-26.
@@ -50,16 +46,16 @@ public class HttpRequestTask  extends AsyncTask<String, Void, String> {
         this.resultNum = resultNum;
     }
     protected void onPreExecute() {
-        /*if(progressDlg != null && progressDlg.isShowing()){
+       /*if(progressDlg != null && progressDlg.isShowing()){
             progressDlg.dismiss();
             progressDlg = null;
         }
-        progressDlg = ProgressDialog.show(context, "Wait", "Downloading...");*/
-
+        progressDlg = ProgressDialog.show(context, "Wait", "Uploding...");
+*/
     }
 
     protected void onPostExecute(String result) {
-       /* progressDlg.dismiss();
+        /*progressDlg.dismiss();
         progressDlg = null;*/
         Log.d(TAG,result);
 

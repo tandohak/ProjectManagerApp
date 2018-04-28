@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
 import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
+import kr.or.dgit.bigdata.projectmanagerapp.network.RequestPref;
 import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserUtil;
 
 public class LoginActivity extends BaseActivity implements View.OnClickListener{
@@ -75,10 +76,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         intent.putExtra("userVo",vo);
                         startActivity(intent);
 
+
                         LoginActivity.this.finish();
+                        overridePendingTransition(0, 0);
+
+
                     }else{
                         if(!isLogin){
                         Intent intent = new Intent(LoginActivity.this,JoinFormActivity.class);
+                        FirebaseUser user = mAuth.getCurrentUser();
+
+                        String email = user.getEmail();
+                        String displayName = user.getDisplayName();
+
+                        Log.d(TAG,displayName);
+
+                        intent.putExtra("displayName",displayName);
+                        intent.putExtra("email",email);
                         startActivity(intent);
                         }
                     }
@@ -145,7 +159,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
-        mAuth.signOut();
+        revokeAccess();
         //로그아웃 시 로그인 연결 끊기
         isLogout = getIntent().getBooleanExtra("logout",false);
 
@@ -160,7 +174,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             String email = pref.getString("email","");
             Log.d(TAG,"email"+email);
             HttpRequestTask mHttpRequestTask = new HttpRequestTask(this ,"POST",email,handler,0);
-            mHttpRequestTask.execute("http://192.168.0.50:8080/projectManager/register/googleLogin");
+            mHttpRequestTask.execute(RequestPref.pref+"/register/googleLogin");
         }
 
     }
@@ -272,7 +286,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             String email = user.getEmail();
 
             HttpRequestTask mHttpRequestTask = new HttpRequestTask(this ,"POST",email,handler,0);
-            mHttpRequestTask.execute("http://192.168.0.50:8080/projectManager/register/googleLogin");
+            mHttpRequestTask.execute(RequestPref.pref+"/register/googleLogin");
         } else {
             if(isLogout){
                 Toast.makeText(this, "로그 아웃하였습니다.", Toast.LENGTH_SHORT).show();
@@ -303,7 +317,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             }
             showProgressDialog();
             HttpRequestTask mHttpRequestTask = new HttpRequestTask(LoginActivity.this ,"POST",query,handler,1);
-            mHttpRequestTask.execute("http://192.168.0.50:8080/projectManager/register/emailLogin");
+            mHttpRequestTask.execute(RequestPref.pref+"/register/emailLogin");
 
         }else if(v.getId() == R.id.join_button){
             Intent intent = new Intent(LoginActivity.this, JoinEmailActivity.class);

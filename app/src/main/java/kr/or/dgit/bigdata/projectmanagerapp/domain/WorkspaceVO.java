@@ -1,8 +1,11 @@
 package kr.or.dgit.bigdata.projectmanagerapp.domain;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
-public class WorkspaceVO {
+public class WorkspaceVO implements Parcelable {
 	private String wcode;
 	private String name;
 	private String maker;
@@ -27,6 +30,28 @@ public class WorkspaceVO {
 		this.uno = uno;
 		this.regDate = regDate;
 	}
+
+	protected WorkspaceVO(Parcel in) {
+		final ClassLoader cl = getClass().getClassLoader();
+
+		wcode = in.readString();
+		name = in.readString();
+		maker = in.readString();
+		uno = in.readInt();
+		regDate = (Date) in.readValue(cl);
+	}
+
+	public static final Creator<WorkspaceVO> CREATOR = new Creator<WorkspaceVO>() {
+		@Override
+		public WorkspaceVO createFromParcel(Parcel in) {
+			return new WorkspaceVO(in);
+		}
+
+		@Override
+		public WorkspaceVO[] newArray(int size) {
+			return new WorkspaceVO[size];
+		}
+	};
 
 	public String getWcode() {
 		return wcode;
@@ -74,4 +99,17 @@ public class WorkspaceVO {
 				+ regDate + "]";
 	}
 
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(this.wcode);
+		dest.writeString(this.name);
+		dest.writeString(this.maker);
+		dest.writeInt(this.uno);
+		dest.writeValue(this.regDate);
+	}
 }
