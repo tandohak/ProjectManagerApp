@@ -29,18 +29,21 @@
             </intent-filter>
         </activity>
         <activity android:name=".JoinEmailActivity" />
-        <activity android:name=".JoinFormActivity"></activity>
+        <activity android:name=".JoinFormActivity" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="kr.or.dgit.bigdata.projectmanagerapp.provider"
             android:exported="false"
-            android:grantUriPermissions="true"
-            >
+            android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
+        <activity
+            android:name=".ProjectSettingsActivity"
+            android:label="@string/title_activity_project_settings"></activity>
     </application>
 
 </manifest>

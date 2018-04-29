@@ -3,6 +3,8 @@ package kr.or.dgit.bigdata.projectmanagerapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,16 +17,20 @@ import android.view.MenuItem;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.firebase.auth.FirebaseAuth;
 
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
+import kr.or.dgit.bigdata.projectmanagerapp.domain.WorkspaceVO;
+import kr.or.dgit.bigdata.projectmanagerapp.fragments.WorkspaceFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private FirebaseAuth mAuth;
     private  final String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
+    private WorkspaceFragment mWorkspaceFragment;
+    private FragmentManager manager;
+    UserVO userVo;
+    WorkspaceVO workVo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +38,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -50,9 +57,24 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        UserVO userVo =  getIntent().getParcelableExtra("userVo");
+        userVo =  getIntent().getParcelableExtra("userVo");
+        workVo = getIntent().getParcelableExtra("workVo");
         Log.d(TAG,userVo.toString());
+        Log.d(TAG,workVo.toString());
+
+        manager= getSupportFragmentManager();
+
+        mWorkspaceFragment = new WorkspaceFragment();
+        Bundle bundle =new Bundle(1);
+        bundle.putString("wcode",  workVo.getWcode());
+        mWorkspaceFragment.setArguments(bundle);
+
+        FragmentTransaction ft = manager.beginTransaction();
+        ft.addToBackStack(null);
+        ft.add(R.id.fragment_container,mWorkspaceFragment);
+        ft.commit();
     }
+
 
     @Override
     public void onBackPressed() {
@@ -94,15 +116,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_camera) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
         } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         } else if (id == R.id.logout){
             if (mGoogleApiClient.isConnected()) {
@@ -117,5 +131,15 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
     }
 }

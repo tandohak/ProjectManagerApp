@@ -50,8 +50,8 @@ public class HttpRequestTask  extends AsyncTask<String, Void, String> {
             progressDlg.dismiss();
             progressDlg = null;
         }
-        progressDlg = ProgressDialog.show(context, "Wait", "Uploding...");
-*/
+        progressDlg = ProgressDialog.show(context, "Wait", "Uploding...");*/
+
     }
 
     protected void onPostExecute(String result) {
@@ -73,40 +73,40 @@ public class HttpRequestTask  extends AsyncTask<String, Void, String> {
         try {
             URL url = new URL(strs[0]);
             con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod(requestMethod);// POST방식으로 요청한다
+            String query = "";
+
 
             if(requestMethod.equals("POST")){
+                con.setRequestMethod(requestMethod);// POST방식으로 요청한다
                 con.setDoInput(true); //POST 데이터를 넘겨주겠다는 옵션을 정의
+                con.setDoOutput(true); //서버로 부터 응답 헤더와 메시지를 읽어들이겠다는 옵션을 정의
+                if(builder == null){
+                    con.setRequestProperty("Accept", "application/json");
+                    con.setRequestProperty("Content-Type", "application/json");
+                    query = requestBodyValue;
+                    Log.d(TAG,query);
+                }else{
+                    con.setRequestProperty("Accept", "application/json");
+                    con.setRequestProperty("Content-Type", "application/json");
+                    query = builder.build().getEncodedQuery();
+                    Log.d(TAG,query);
+                }
+
+                OutputStream os = con.getOutputStream();
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
             }
 
-            con.setDoOutput(true); //서버로 부터 응답 헤더와 메시지를 읽어들이겠다는 옵션을 정의
-            String query = "";
-            if(builder == null){
+            if(requestMethod.equals("GET")){
+                Log.d(TAG,requestBodyValue);
+                con.setRequestMethod("GET");
                 con.setRequestProperty("Accept", "application/json");
                 con.setRequestProperty("Content-Type", "application/json");
-                query = requestBodyValue;
-                Log.d(TAG,query);
-            }else{
-                con.setRequestProperty("Accept", "application/json");
-                con.setRequestProperty("Content-Type", "application/json");
-                query = builder.build().getEncodedQuery();
-                Log.d(TAG,query);
             }
-
-
-
-          OutputStream os = con.getOutputStream();
-
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            writer.write(query);
-            writer.flush();
-            writer.close();
-            os.close();
-
-              /*DataOutputStream os = new DataOutputStream(con.getOutputStream());
-            os.writeBytes(query);
-            os.flush();
-            os.close();*/
 
             if (con != null) {
                 if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {

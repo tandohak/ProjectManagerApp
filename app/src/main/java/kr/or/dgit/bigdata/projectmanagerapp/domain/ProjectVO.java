@@ -1,8 +1,11 @@
 package kr.or.dgit.bigdata.projectmanagerapp.domain;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.Date;
 
-public class ProjectVO {
+public class ProjectVO implements Parcelable {
 	private int pno;
 	private String wcode;
 	private String title;
@@ -16,6 +19,54 @@ public class ProjectVO {
 	private int status;
 	private int authority;
 	private boolean locker;
+
+	public ProjectVO() {}
+
+	public ProjectVO(int pno, String wcode, String title, int maker, String explanation, boolean visibility, Date regDate, Date startDate, Date endDate, Date finishDate, int status, int authority, boolean locker) {
+		this.pno = pno;
+		this.wcode = wcode;
+		this.title = title;
+		this.maker = maker;
+		this.explanation = explanation;
+		this.visibility = visibility;
+		this.regDate = regDate;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.finishDate = finishDate;
+		this.status = status;
+		this.authority = authority;
+		this.locker = locker;
+	}
+
+	protected ProjectVO(Parcel in) {
+		final ClassLoader cl = getClass().getClassLoader();
+
+		pno = in.readInt();
+		wcode = in.readString();
+		title = in.readString();
+		maker = in.readInt();
+		explanation = in.readString();
+		visibility = in.readByte() != 0;
+		regDate = (Date) in.readValue(cl);
+		startDate = (Date) in.readValue(cl);
+		endDate = (Date) in.readValue(cl);
+		finishDate = (Date) in.readValue(cl);
+		status = in.readInt();
+		authority = in.readInt();
+		locker = in.readByte() != 0;
+	}
+
+	public static final Creator<ProjectVO> CREATOR = new Creator<ProjectVO>() {
+		@Override
+		public ProjectVO createFromParcel(Parcel in) {
+			return new ProjectVO(in);
+		}
+
+		@Override
+		public ProjectVO[] newArray(int size) {
+			return new ProjectVO[size];
+		}
+	};
 
 	public int getPno() {
 		return pno;
@@ -130,4 +181,24 @@ public class ProjectVO {
 	}
 
 
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(this.pno);
+		dest.writeString(this.wcode);
+		dest.writeString(this.title);
+		dest.writeString(this.explanation);
+		dest.writeValue(this.visibility);
+		dest.writeValue(this.regDate);
+		dest.writeValue(this.startDate);
+		dest.writeValue(this.endDate);
+		dest.writeValue(this.finishDate);
+		dest.writeInt(this.status);
+		dest.writeInt(this.authority);
+		dest.writeValue(this.locker);
+	}
 }

@@ -28,7 +28,10 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
+import kr.or.dgit.bigdata.projectmanagerapp.domain.WorkspaceVO;
 import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
 import kr.or.dgit.bigdata.projectmanagerapp.network.RequestPref;
 import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserUtil;
@@ -44,19 +47,34 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private GoogleSignInClient mGoogleSignInClient;
     boolean isLogin = false;// 이메일 로그인 확인용
 
-    private JsonParserUtil<UserVO> jsonParserUtil = new JsonParserUtil() {
+    private JsonParserUtil<HashMap<String,Object>> jsonParserUtil = new JsonParserUtil() {
         @Override
-        public UserVO itemParse(JSONObject order) throws JSONException{
+        public HashMap<String, Object> itemParse(JSONObject order) throws JSONException{
+            HashMap<String, Object> map = new HashMap<>();
+
+            JSONObject userObj = order.getJSONObject("userVo");
+
             UserVO vo = new UserVO();
 
-            vo.setUno(order.getInt("uno"));
-            vo.setEmail(order.getString("email"));
-            vo.setFirstName(order.getString("firstName"));
-            vo.setLastName(order.getString("lastName"));
-            vo.setGrade(order.getInt("grade"));
-            vo.setPhotoPath(order.getString("photoPath"));
+            JSONObject user  = order.getJSONObject("userVo");
+            vo.setUno(user.getInt("uno"));
+            vo.setEmail(user.getString("email"));
+            vo.setFirstName(user.getString("firstName"));
+            vo.setLastName(user.getString("lastName"));
+            vo.setGrade(user.getInt("grade"));
+            vo.setPhotoPath(user.getString("photoPath"));
+            map.put("userVo",vo);
 
-            return vo;
+            JSONObject workspace  = order.getJSONObject("wvo");
+
+            WorkspaceVO wvo = new WorkspaceVO();
+            wvo.setWcode(workspace.getString("wcode"));
+            wvo.setName(workspace.getString("name"));
+            wvo.setMaker(workspace.getString("maker"));
+            wvo.setUno(workspace.getInt("uno"));
+
+            map.put("workVo",wvo);
+            return map;
         }
     };
 
@@ -70,10 +88,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                     if(!result.equals("")){
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
 
-                        UserVO vo =  jsonParserUtil.parsingJson(result);
-                        Log.d(TAG,vo.toString());
+                        HashMap<String,Object> map =  jsonParserUtil.parsingJson(result);
 
-                        intent.putExtra("userVo",vo);
+                        intent.putExtra("userVo",(UserVO)map.get("userVo"));
+                        intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
                         startActivity(intent);
 
 
@@ -105,10 +123,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                     if(!result.equals("")){
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
 
-                        UserVO vo =  jsonParserUtil.parsingJson(result);
-                        Log.d(TAG,vo.toString());
-
-                        intent.putExtra("userVo",vo);
+                        HashMap<String,Object> map =  jsonParserUtil.parsingJson(result);
+                        UserVO userVo = (UserVO)map.get("userVo");
+                        intent.putExtra("userVo",userVo);
+                        intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
                         startActivity(intent);
 
                         SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
@@ -116,8 +134,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         editor.clear();
                         editor.putBoolean("isLogin",true);
 
-                        Log.d(TAG,"add email"+vo.getEmail());
-                        editor.putString("email",vo.getEmail());
+                        Log.d(TAG,"add email"+userVo.getEmail());
+                        editor.putString("email",userVo.getEmail());
                         editor.commit();
 
                         LoginActivity.this.finish();
