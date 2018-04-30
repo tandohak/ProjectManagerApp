@@ -5,8 +5,8 @@ package kr.or.dgit.bigdata.projectmanagerapp.observer;
  */
 
 public class Position extends Subject {
-    private int position;
-    private int onClickId;
+    private int position = -1;
+    private int onClickId = -1;
 
     public void addPosition(int position, int onClickId){
         this.position = position;
@@ -17,6 +17,21 @@ public class Position extends Subject {
     public int getPosition(){
         return position;
     }
+
+    public  void resetPosition(){
+        position = -1;
+        onClickId = -1;
+    }
+
+    Object vo;
+    public void addObject(Object vo){
+        this.vo = vo;
+    }
+
+    public Object getObject(){
+        return vo;
+    }
+
 
     public int getOnClickId(){
         return onClickId;

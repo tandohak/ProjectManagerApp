@@ -18,6 +18,21 @@ public class TaskVO {
 	private String colorLabel;
 	private int status;
 
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		TaskVO taskVO = (TaskVO) o;
+
+		return taskno == taskVO.taskno;
+	}
+
+	@Override
+	public int hashCode() {
+		return taskno;
+	}
+
 	public String getWriter() {
 		return writer;
 	}

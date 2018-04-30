@@ -28,9 +28,9 @@ import kr.or.dgit.bigdata.projectmanagerapp.observer.Observer;
 import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener ,Observer{
+        implements NavigationView.OnNavigationItemSelectedListener, Observer {
 
-    private  final String TAG = "MainActivity";
+    private final String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
     private WorkspaceFragment mWorkspaceFragment;
     private ProjectInnerFragment mProjectInnerFragment;
@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity
     UserVO userVo;
     WorkspaceVO workVo;
     MemberVO memVo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,31 +63,33 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        userVo =  getIntent().getParcelableExtra("userVo");
+        userVo = getIntent().getParcelableExtra("userVo");
         workVo = getIntent().getParcelableExtra("workVo");
         memVo = getIntent().getParcelableExtra("memVo");
-        Log.d(TAG,userVo.toString());
-        Log.d(TAG,workVo.toString());
-        Log.d(TAG,memVo.toString());
+        Log.d(TAG, userVo.toString());
+        Log.d(TAG, workVo.toString());
+        Log.d(TAG, memVo.toString());
 
-        manager= getSupportFragmentManager();
+        manager = getSupportFragmentManager();
 
         mWorkspaceFragment = new WorkspaceFragment();
-        Bundle bundle =new Bundle(1);
-        bundle.putString("wcode",  workVo.getWcode());
-        bundle.putParcelable("memVo",memVo);
+        Bundle bundle = new Bundle(1);
+        bundle.putString("wcode", workVo.getWcode());
+        bundle.putParcelable("memVo", memVo);
         mWorkspaceFragment.setArguments(bundle);
         mWorkspaceFragment.position = new Position();
         mWorkspaceFragment.position.attach(this);
 
+
         mProjectInnerFragment = new ProjectInnerFragment();
+        mProjectInnerFragment.mPosition = new Position();
+        mProjectInnerFragment.mPosition.attach(this);
 
         FragmentTransaction ft = manager.beginTransaction();
         ft.addToBackStack(null);
-        ft.add(R.id.fragment_container,mWorkspaceFragment);
+        ft.add(R.id.fragment_container, mWorkspaceFragment);
         ft.commit();
     }
-
 
     @Override
     public void onBackPressed() {
@@ -130,11 +133,11 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.logout){
+        } else if (id == R.id.logout) {
             if (mGoogleApiClient.isConnected()) {
                 mGoogleApiClient.disconnect();
-                Intent intent = new Intent(this,LoginActivity.class);
-                intent.putExtra("logout",true);
+                Intent intent = new Intent(this, LoginActivity.class);
+                intent.putExtra("logout", true);
                 startActivity(intent);
                 this.finish();
             }
@@ -154,30 +157,38 @@ public class MainActivity extends AppCompatActivity
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+
+
     @Override
     public void update() {
-        int getId= mWorkspaceFragment.position.getOnClickId();
-        int position = mWorkspaceFragment.position.getPosition();
-        ProjectVO vo = mWorkspaceFragment.getProjectVO(position);
-        switch (getId){
-            case R.id.project_item:
-                Log.d(TAG,"position = " + position);
-                Bundle bundle =new Bundle(1);
-                bundle.putString("wcode",  workVo.getWcode());
-                bundle.putParcelable("memVo",memVo);
-                bundle.putParcelable("projectVo",vo);
-                mProjectInnerFragment.setArguments(bundle);
+        int getId = mWorkspaceFragment.position.getOnClickId();
+        int position = -1;
+        Log.d(TAG,getId+"");
+        try {
+            switch (getId) {
+                case R.id.project_item:
+                    position = mWorkspaceFragment.position.getPosition();
+                    ProjectVO vo = mWorkspaceFragment.getProjectVO(position);
+                    Log.d(TAG, "position = " + position);
+                    Bundle bundle = new Bundle(1);
+                    bundle.putString("wcode", workVo.getWcode());
+                    bundle.putParcelable("memVo", memVo);
+                    bundle.putParcelable("projectVo", vo);
+                    mProjectInnerFragment.setArguments(bundle);
+                    FragmentTransaction ft = manager.beginTransaction();
+                    ft.addToBackStack(null);
+                    ft.add(R.id.fragment_container, mProjectInnerFragment);
+                    ft.commit();
+                    mWorkspaceFragment.position.resetPosition();
+                    break;
+                case R.id.pj_setting:
+                    position = mWorkspaceFragment.position.getPosition();
+                    Log.d(TAG, "position = " + position);
+                    break;
+            }
 
-                FragmentTransaction ft = manager.beginTransaction();
-                ft.addToBackStack(null);
-                ft.add(R.id.fragment_container,mProjectInnerFragment);
-                ft.commit();
-                break;
-            case R.id.pj_setting:
-                Log.d(TAG,"position = " + position);
-                break;
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-
     }
 }

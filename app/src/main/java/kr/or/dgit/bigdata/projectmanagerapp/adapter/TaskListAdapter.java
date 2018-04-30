@@ -14,33 +14,33 @@ import java.util.List;
 import kr.or.dgit.bigdata.projectmanagerapp.R;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.TaskListVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.TaskVO;
+import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
 
 /**
  * Created by ghddb on 2018-04-29.
  */
 
-public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewHolder> {
-
+public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskListViewHolder>{
+    private Position mPosition = new Position();
+    private final String TAG = "TaskListAdapter";
     private List<TaskListVO> myList;
     private List<TaskVO> tasks;
     private TaskAdapter mAdapter;
     private TaskFinishAdapter mAdapter_finish;
-    View.OnClickListener mOnClickListener;
     private RecyclerView.LayoutManager mLayoutManager;
     private RecyclerView.LayoutManager mLayoutManager_finish;
-    private List<TaskAdapter> mAdapterList = new ArrayList<>();
+    List<TaskVO> tempTasks = new ArrayList<>();
+    List<TaskVO> tempTasks_finish = new ArrayList<>();
 
-    public TaskListAdapter(List<TaskListVO> myList ,List<TaskVO> tasks, View.OnClickListener mOnClickListener) {
+    public TaskListAdapter(List<TaskListVO> myList ,List<TaskVO> tasks,Position mPosition) {
         this.myList = myList;
         this.tasks = tasks;
-        this.mOnClickListener = mOnClickListener;
+        this.mPosition = mPosition;
     }
 
     @Override
     public TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_layout,parent,false);
-       /* view.setOnClickListener(mOnClickListener);
-        view.findViewById(R.id.project_setting).setOnClickListener(mOnClickListener);*/
         return new TaskListViewHolder(view);
     }
 
@@ -61,24 +61,23 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
                 }
             }
         }
-
-        mAdapter = new TaskAdapter(tempTasks,mOnClickListener);
+        mAdapter = new TaskAdapter(tempTasks,mPosition);
         holder.mRecyclerView.setAdapter(mAdapter);
-        mAdapterList.add(mAdapter);
 
-        mAdapter_finish= new TaskFinishAdapter(tempTasks_finish,mOnClickListener);
+        mAdapter_finish= new TaskFinishAdapter(tempTasks_finish,mPosition);
         holder.mRecyclerView_finish.setAdapter(mAdapter_finish);
 
         if (tempTasks_finish.size() <= 0){
             holder.finish_text_box.setVisibility(View.GONE);
+        }else{
+            holder.finish_text_box.setVisibility(View.VISIBLE);
         }
 
     }
 
     private HashMap<String,List<TaskVO>> checkStatus(List<TaskVO> tasks, int tlno){
         HashMap<String,List<TaskVO>> map = new HashMap<>();
-        List<TaskVO> tempTasks = new ArrayList<>();
-        List<TaskVO> tempTasks_finish = new ArrayList<>();
+
 
         for(TaskVO task : tasks){
             if(task.getTlno() == tlno){
@@ -104,31 +103,48 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
         notifyDataSetChanged();
     }
 
+    public TaskVO getfinishTask(int position) {
+        return tempTasks_finish.get(position);
+    }
+
+    public TaskVO getTask(int position) {
+        return tempTasks.get(position);
+    }
+
     public void add(List<TaskListVO> list){
         myList = list;
         notifyDataSetChanged();
     }
 
+
     public void  add(HashMap<String,Object> map){
 
         if (map.get("taskList") != null){
             myList = (List<TaskListVO>) map.get("taskList");
-            /*for (int i =0; i<myList.size(); i++){
-                TaskListVO vo = myList.get(i);
-                TaskAdapter tempAdapter = mAdapterList.get(i);
-                HashMap<String,List<TaskVO>> map1 =  checkStatus((List<TaskVO>) map.get("tasks"), vo.getTlno());
-                tempAdapter.add((List<TaskVO>) map1.get("tempTasks"));
-            }*/
+           for (int i =0; i<myList.size(); i++){
+               TaskListVO vo = myList.get(i);
+               HashMap<String,List<TaskVO>> map1 =  checkStatus((List<TaskVO>) map.get("tasks"), vo.getTlno());
+               tempTasks = map1.get("tempTasks");
+               tempTasks_finish = map1.get("tempTasks_finish");
+            }
         }
 
-       /*if(map.get("tasks")!=null){
-            HashMap<String,List<TaskVO>> map1 =  checkStatus((List<TaskVO>) map.get("tasks"), );
-            mAdapter.add((List<TaskVO>) map1.get("tempTasks"));
-            mAdapter_finish.add((List<TaskVO>) map1.get("tempTasks_finish"));
-        }*/
+        if(map.get("tasks")!=null){
+            tasks = (List<TaskVO>) map.get("tasks");
+        }
 
         notifyDataSetChanged();
     }
+
+    public void updateTask(TaskVO taskVO) {
+        tasks.remove(taskVO);
+        tasks.add(taskVO);
+        notifyDataSetChanged();
+    }
+
+
+
+
 
     protected class TaskListViewHolder extends RecyclerView.ViewHolder{
         TextView taskListName;

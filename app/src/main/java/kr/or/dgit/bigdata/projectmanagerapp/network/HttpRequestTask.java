@@ -100,6 +100,23 @@ public class HttpRequestTask  extends AsyncTask<String, Void, String> {
                 os.close();
             }
 
+            if(requestMethod.equals("PUT")){
+                con.setRequestMethod("PUT");
+                con.setDoInput(true); //POST 데이터를 넘겨주겠다는 옵션을 정의
+                con.setDoOutput(true); //서버로 부터 응답 헤더와 메시지를 읽어들이겠다는 옵션을 정의
+                con.setRequestProperty("Accept", "application/json");
+                con.setRequestProperty("Content-Type", "application/json");
+                query = requestBodyValue;
+
+                OutputStream os = con.getOutputStream();
+
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+            }
+
             if(requestMethod.equals("GET")){
                 Log.d(TAG,requestBodyValue);
                 con.setRequestMethod("GET");
