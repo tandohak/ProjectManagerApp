@@ -24,9 +24,11 @@ public class JsonParserProjectVO extends JsonParserUtil<ProjectVO> {
         vo.setExplanation(order.getString("explanation"));
         vo.setVisibility(order.getBoolean("visibility"));
 
-        Long regDate = order.getLong("regDate");
-        vo.setRegDate(new Date(regDate));
 
+        if (order.getString("regDate") !="null") {
+            Long regDate = order.getLong("regDate");
+            vo.setRegDate(new Date(regDate));
+        }
         if (order.getString("startDate") !="null") {
             Long startDate = order.getLong("startDate");
             vo.setStartDate(new Date(startDate));

@@ -13,13 +13,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import kr.or.dgit.bigdata.projectmanagerapp.domain.MemberVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.WorkspaceVO;
+import kr.or.dgit.bigdata.projectmanagerapp.fragments.ProjectInnerFragment;
 import kr.or.dgit.bigdata.projectmanagerapp.fragments.WorkspaceFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -28,17 +32,17 @@ public class MainActivity extends AppCompatActivity
     private  final String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
     private WorkspaceFragment mWorkspaceFragment;
+    private ProjectInnerFragment mProjectInnerFragment;
     private FragmentManager manager;
     UserVO userVo;
     WorkspaceVO workVo;
-
+    MemberVO memVo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -59,15 +63,39 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         userVo =  getIntent().getParcelableExtra("userVo");
         workVo = getIntent().getParcelableExtra("workVo");
+        memVo = getIntent().getParcelableExtra("memVo");
         Log.d(TAG,userVo.toString());
         Log.d(TAG,workVo.toString());
+        Log.d(TAG,memVo.toString());
 
         manager= getSupportFragmentManager();
 
         mWorkspaceFragment = new WorkspaceFragment();
         Bundle bundle =new Bundle(1);
         bundle.putString("wcode",  workVo.getWcode());
+        bundle.putParcelable("memVo",memVo);
         mWorkspaceFragment.setArguments(bundle);
+
+        mWorkspaceFragment.mOnClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()){
+                    case R.id.project_item:
+                        int position = mWorkspaceFragment.getSelectPosition();
+                        Log.d(TAG,"select position - " + position);
+                        FragmentTransaction ft = manager.beginTransaction();
+                        ft.addToBackStack(null);
+                        ft.add(R.id.fragment_container,mProjectInnerFragment);
+                        ft.commit();
+
+                        break;
+                    case  R.id.project_setting:
+                        Toast.makeText(view.getContext(), "아이템 설정 클릭", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        };
+        mProjectInnerFragment = new ProjectInnerFragment();
 
         FragmentTransaction ft = manager.beginTransaction();
         ft.addToBackStack(null);

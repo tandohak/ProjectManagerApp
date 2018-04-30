@@ -74,20 +74,19 @@ public class HttpRequestTask  extends AsyncTask<String, Void, String> {
             URL url = new URL(strs[0]);
             con = (HttpURLConnection) url.openConnection();
             String query = "";
-
+            Log.d(TAG,strs[0]);
 
             if(requestMethod.equals("POST")){
+                Log.d(TAG,"POST");
                 con.setRequestMethod(requestMethod);// POST방식으로 요청한다
                 con.setDoInput(true); //POST 데이터를 넘겨주겠다는 옵션을 정의
                 con.setDoOutput(true); //서버로 부터 응답 헤더와 메시지를 읽어들이겠다는 옵션을 정의
-                if(builder == null){
-                    con.setRequestProperty("Accept", "application/json");
-                    con.setRequestProperty("Content-Type", "application/json");
-                    query = requestBodyValue;
-                    Log.d(TAG,query);
-                }else{
-                    con.setRequestProperty("Accept", "application/json");
-                    con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestProperty("Accept", "application/json");
+                con.setRequestProperty("Content-Type", "application/json");
+                query = requestBodyValue;
+                Log.d(TAG,query);
+
+                if(builder != null){
                     query = builder.build().getEncodedQuery();
                     Log.d(TAG,query);
                 }

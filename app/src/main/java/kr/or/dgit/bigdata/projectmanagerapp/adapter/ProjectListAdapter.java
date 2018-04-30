@@ -2,12 +2,14 @@ package kr.or.dgit.bigdata.projectmanagerapp.adapter;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -18,17 +20,21 @@ import kr.or.dgit.bigdata.projectmanagerapp.domain.ProjectVO;
  * Created by ghddb on 2018-04-29.
  */
 
-public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.ProjectViewHolder> {
+public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.ProjectViewHolder>  {
 
     private List<ProjectVO> myList;
-
-    public ProjectListAdapter(List<ProjectVO> myList) {
+    View.OnClickListener mOnClickListener;
+    int selectPosition;
+    public ProjectListAdapter(List<ProjectVO> myList , View.OnClickListener mOnClickListener) {
         this.myList = myList;
+        this.mOnClickListener = mOnClickListener;
     }
 
     @Override
     public ProjectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.project_item_layout,parent,false);
+        view.setOnClickListener(mOnClickListener);
+        view.findViewById(R.id.project_setting).setOnClickListener(mOnClickListener);
         return new ProjectViewHolder(view);
     }
 
@@ -37,11 +43,11 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
         ProjectVO vo = myList.get(position);
         holder.projectName.setText(vo.getTitle());
 
-        int status = vo.getStatus();
-        String statusText = "";
-        String colorString = "#ffffff";
-        Drawable drawable = null;
-        switch (status){
+            int status = vo.getStatus();
+            String statusText = "";
+            String colorString = "#ffffff";
+            Drawable drawable = null;
+            switch (status){
             case 1:
                 statusText= "계획됨";
                 drawable =  holder.status_text_view.getResources().getDrawable(R.drawable.state_back_1);
@@ -76,13 +82,16 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
         holder.status_text_view.setBackground(drawable);
     }
 
+    public int getSelectPosition(){
+        return selectPosition;
+    }
+
     @Override
     public int getItemCount() {
         return myList.size();
     }
 
-
-    protected class ProjectViewHolder extends RecyclerView.ViewHolder{
+    protected class ProjectViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView projectName;
         FrameLayout frameLayout;
         TextView status_text_view;
@@ -91,7 +100,12 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
             projectName = itemView.findViewById(R.id.projectName);
             frameLayout =itemView.findViewById(R.id.pj_setting);
             status_text_view = itemView.findViewById(R.id.status_text_view);
+//            itemView.findViewById(R.id.project_item).setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View view) {
+            selectPosition = getAdapterPosition();
         }
     }
 

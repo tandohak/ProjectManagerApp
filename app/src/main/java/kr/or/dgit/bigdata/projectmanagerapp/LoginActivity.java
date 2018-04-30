@@ -30,6 +30,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 
+import kr.or.dgit.bigdata.projectmanagerapp.domain.MemberVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.WorkspaceVO;
 import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
@@ -73,7 +74,17 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             wvo.setMaker(workspace.getString("maker"));
             wvo.setUno(workspace.getInt("uno"));
 
+
             map.put("workVo",wvo);
+            MemberVO memVo = new MemberVO();
+
+            JSONObject memObj = order.getJSONObject("memVo");
+            memVo.setMno(memObj.getInt("mno"));
+            memVo.setUno(memObj.getInt("uno"));
+            memVo.setWcode(memObj.getString("wcode"));
+            memVo.setMemGrade(memObj.getInt("memGrade"));
+            Log.d(TAG,memVo.toString());
+            map.put("memVo", memVo);
             return map;
         }
     };
@@ -92,6 +103,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
                         intent.putExtra("userVo",(UserVO)map.get("userVo"));
                         intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
+                        intent.putExtra("memVo",(MemberVO)map.get("memVo"));
                         startActivity(intent);
 
 
@@ -127,6 +139,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         UserVO userVo = (UserVO)map.get("userVo");
                         intent.putExtra("userVo",userVo);
                         intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
+                        intent.putExtra("memVo",(MemberVO)map.get("memVo"));
                         startActivity(intent);
 
                         SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
