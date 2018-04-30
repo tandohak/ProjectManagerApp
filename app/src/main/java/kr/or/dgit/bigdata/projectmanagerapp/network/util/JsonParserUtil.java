@@ -24,6 +24,7 @@ public  abstract class JsonParserUtil<T> {
                 JSONObject order = ja.getJSONObject(i);
 
                 itemClass = itemParse(order);
+                if(itemClass!=null)
                 Log.d(TAG,itemClass.toString());
                 arItem.add(itemClass);
             }
@@ -39,6 +40,7 @@ public  abstract class JsonParserUtil<T> {
                 JSONObject order = new JSONObject(json);
 
                 itemClass = itemParse(order);
+                if(itemClass!=null)
                 Log.d(TAG,itemClass.toString());
 
         } catch (JSONException e) {

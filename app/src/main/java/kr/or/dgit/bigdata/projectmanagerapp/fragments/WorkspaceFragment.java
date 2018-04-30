@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -25,7 +24,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
@@ -37,6 +35,7 @@ import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
 import kr.or.dgit.bigdata.projectmanagerapp.network.RequestPref;
 import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserProjectVO;
 import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserUtil;
+import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
 
 /**
  * Created by ghddb on 2018-04-29.
@@ -52,6 +51,7 @@ public class WorkspaceFragment extends Fragment {
     private ProjectMakeDialog mCustomDialog;
     private MemberVO memVo;
     private String wcode;
+    public Position position;
 
     @Nullable
     @Override
@@ -75,7 +75,7 @@ public class WorkspaceFragment extends Fragment {
         HttpRequestTask mHttpRequestTask = new HttpRequestTask(view.getContext() ,"GET","",handler,0);
         mHttpRequestTask.execute(RequestPref.pref+"/project/select/projectList/"+wcode);
 
-        mAdapter = new ProjectListAdapter(myList,mOnClickListener);   Log.d(TAG,"리스트 추가");
+        mAdapter = new ProjectListAdapter(myList,position);   Log.d(TAG,"리스트 추가");
 
         mRecyclerView.setAdapter(mAdapter);  Log.d(TAG,"어뎁터 추가");
 
@@ -91,11 +91,9 @@ public class WorkspaceFragment extends Fragment {
         return view;
     }
 
-    public int getSelectPosition(){
-        return mAdapter.getSelectPosition();
+    public ProjectVO getProjectVO(int position){
+        return mAdapter.getProjectVO(position);
     }
-
-    public View.OnClickListener mOnClickListener;
 
     int dialogStack  =  0;
 
@@ -166,10 +164,10 @@ public class WorkspaceFragment extends Fragment {
      private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
             String res = "";
-
             switch (msg.what){
                 case 0:
                     res = (String)msg.obj;
+                    Log.d(TAG,res);
                     myList =   parserUtil.parsingJsonArray(res);
                     mProgressBar.dismiss();
                     mAdapter.addList(myList);

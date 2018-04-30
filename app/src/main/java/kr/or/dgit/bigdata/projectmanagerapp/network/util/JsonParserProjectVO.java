@@ -1,5 +1,7 @@
 package kr.or.dgit.bigdata.projectmanagerapp.network.util;
 
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -12,10 +14,12 @@ import kr.or.dgit.bigdata.projectmanagerapp.domain.ProjectVO;
  */
 
 public class JsonParserProjectVO extends JsonParserUtil<ProjectVO> {
+    private  final String TAG = "JsonParserProjectVO";
 
     @Override
     public ProjectVO itemParse(JSONObject order) throws JSONException {
         ProjectVO vo = new ProjectVO();
+        Log.d(TAG,order.toString());
 
         vo.setPno(order.getInt("pno"));
         vo.setWcode(order.getString("wcode"));

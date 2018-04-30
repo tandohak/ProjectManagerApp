@@ -13,21 +13,22 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.GoogleApiClient;
 
 import kr.or.dgit.bigdata.projectmanagerapp.domain.MemberVO;
+import kr.or.dgit.bigdata.projectmanagerapp.domain.ProjectVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.UserVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.WorkspaceVO;
 import kr.or.dgit.bigdata.projectmanagerapp.fragments.ProjectInnerFragment;
 import kr.or.dgit.bigdata.projectmanagerapp.fragments.WorkspaceFragment;
+import kr.or.dgit.bigdata.projectmanagerapp.observer.Observer;
+import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener ,Observer{
 
     private  final String TAG = "MainActivity";
     private GoogleApiClient mGoogleApiClient;
@@ -75,26 +76,9 @@ public class MainActivity extends AppCompatActivity
         bundle.putString("wcode",  workVo.getWcode());
         bundle.putParcelable("memVo",memVo);
         mWorkspaceFragment.setArguments(bundle);
+        mWorkspaceFragment.position = new Position();
+        mWorkspaceFragment.position.attach(this);
 
-        mWorkspaceFragment.mOnClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switch (view.getId()){
-                    case R.id.project_item:
-                        int position = mWorkspaceFragment.getSelectPosition();
-                        Log.d(TAG,"select position - " + position);
-                        FragmentTransaction ft = manager.beginTransaction();
-                        ft.addToBackStack(null);
-                        ft.add(R.id.fragment_container,mProjectInnerFragment);
-                        ft.commit();
-
-                        break;
-                    case  R.id.project_setting:
-                        Toast.makeText(view.getContext(), "아이템 설정 클릭", Toast.LENGTH_SHORT).show();
-                        break;
-                }
-            }
-        };
         mProjectInnerFragment = new ProjectInnerFragment();
 
         FragmentTransaction ft = manager.beginTransaction();
@@ -155,7 +139,6 @@ public class MainActivity extends AppCompatActivity
                 this.finish();
             }
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -169,5 +152,32 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void update() {
+        int getId= mWorkspaceFragment.position.getOnClickId();
+        int position = mWorkspaceFragment.position.getPosition();
+        ProjectVO vo = mWorkspaceFragment.getProjectVO(position);
+        switch (getId){
+            case R.id.project_item:
+                Log.d(TAG,"position = " + position);
+                Bundle bundle =new Bundle(1);
+                bundle.putString("wcode",  workVo.getWcode());
+                bundle.putParcelable("memVo",memVo);
+                bundle.putParcelable("projectVo",vo);
+                mProjectInnerFragment.setArguments(bundle);
+
+                FragmentTransaction ft = manager.beginTransaction();
+                ft.addToBackStack(null);
+                ft.add(R.id.fragment_container,mProjectInnerFragment);
+                ft.commit();
+                break;
+            case R.id.pj_setting:
+                Log.d(TAG,"position = " + position);
+                break;
+        }
+
+
     }
 }

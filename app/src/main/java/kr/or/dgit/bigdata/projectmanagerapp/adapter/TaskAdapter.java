@@ -9,7 +9,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
-import kr.or.dgit.bigdata.projectmanagerapp.domain.TaskListVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.TaskVO;
 
 /**
@@ -60,6 +59,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     public void  add(TaskVO vo){
         myList.add(vo);
+        notifyDataSetChanged();
+    }
+
+    public void  add(List<TaskVO> list){
+        myList = list;
         notifyDataSetChanged();
     }
 

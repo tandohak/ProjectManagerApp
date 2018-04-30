@@ -2,40 +2,38 @@ package kr.or.dgit.bigdata.projectmanagerapp.adapter;
 
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.ProjectVO;
+import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
 
 /**
  * Created by ghddb on 2018-04-29.
  */
 
 public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.ProjectViewHolder>  {
-
+    final String TAG = "ProjectListAdapter";
     private List<ProjectVO> myList;
     View.OnClickListener mOnClickListener;
-    int selectPosition;
-    public ProjectListAdapter(List<ProjectVO> myList , View.OnClickListener mOnClickListener) {
+    Position position;
+    public ProjectListAdapter(List<ProjectVO> myList ,Position position) {
         this.myList = myList;
-        this.mOnClickListener = mOnClickListener;
+        this.position = position;
     }
 
     @Override
     public ProjectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.project_item_layout,parent,false);
-        view.setOnClickListener(mOnClickListener);
-        view.findViewById(R.id.project_setting).setOnClickListener(mOnClickListener);
-        return new ProjectViewHolder(view);
+        return new ProjectViewHolder(view,position);
     }
 
     @Override
@@ -82,8 +80,9 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
         holder.status_text_view.setBackground(drawable);
     }
 
-    public int getSelectPosition(){
-        return selectPosition;
+
+    public ProjectVO getProjectVO(int position){
+        return myList.get(position);
     }
 
     @Override
@@ -91,22 +90,34 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
         return myList.size();
     }
 
-    protected class ProjectViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    protected class ProjectViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         TextView projectName;
         FrameLayout frameLayout;
         TextView status_text_view;
-        public ProjectViewHolder(final View itemView) {
+        Position position;
+        public ProjectViewHolder(final View itemView, Position position) {
             super(itemView);
             projectName = itemView.findViewById(R.id.projectName);
             frameLayout =itemView.findViewById(R.id.pj_setting);
             status_text_view = itemView.findViewById(R.id.status_text_view);
-//            itemView.findViewById(R.id.project_item).setOnClickListener(this);
+            itemView.findViewById(R.id.project_item).setOnClickListener(this);
+            itemView.findViewById(R.id.pj_setting).setOnClickListener(this);
+            this.position= position;
         }
+
 
         @Override
         public void onClick(View view) {
-            selectPosition = getAdapterPosition();
+            switch (view.getId()){
+                case R.id.pj_setting:
+                    position.addPosition(getAdapterPosition(),view.getId());
+                    break;
+                case R.id.project_item:
+                    position.addPosition(getAdapterPosition(),view.getId());
+                    break;
+            }
         }
+
     }
 
     public void  add(ProjectVO vo){
@@ -116,6 +127,9 @@ public class ProjectListAdapter extends RecyclerView.Adapter<ProjectListAdapter.
 
     public void  addList(List<ProjectVO> list){
         myList = list;
+        for (ProjectVO vo:myList) {
+            Log.d(TAG,vo.toString());
+        }
         notifyDataSetChanged();
     }
 }

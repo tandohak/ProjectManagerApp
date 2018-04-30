@@ -33,8 +33,6 @@ public class TaskFinishAdapter extends RecyclerView.Adapter<TaskFinishAdapter.Ta
         return new TaskViewHolder(view);
     }
 
-
-
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
         TaskVO vo = myList.get(position);
@@ -59,6 +57,11 @@ public class TaskFinishAdapter extends RecyclerView.Adapter<TaskFinishAdapter.Ta
 
     public void  add(TaskVO vo){
         myList.add(vo);
+        notifyDataSetChanged();
+    }
+
+    public void  add(List<TaskVO> list){
+        myList = list;
         notifyDataSetChanged();
     }
 
