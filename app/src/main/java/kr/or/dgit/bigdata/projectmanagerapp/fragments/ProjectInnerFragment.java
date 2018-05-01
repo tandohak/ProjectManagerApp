@@ -28,6 +28,7 @@ import java.util.List;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
 import kr.or.dgit.bigdata.projectmanagerapp.adapter.TaskListAdapter;
+import kr.or.dgit.bigdata.projectmanagerapp.customDialog.AddTaskDialog;
 import kr.or.dgit.bigdata.projectmanagerapp.customDialog.ProjectMakeDialog;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.MemberVO;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.ProjectVO;
@@ -46,7 +47,7 @@ import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
  * Created by ghddb on 2018-04-29.
  */
 
-public class ProjectInnerFragment extends Fragment implements Observer{
+public class ProjectInnerFragment extends Fragment implements Observer ,View.OnClickListener{
     private RecyclerView mRecyclerView;
     private TaskListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -89,7 +90,7 @@ public class ProjectInnerFragment extends Fragment implements Observer{
         tasks = new ArrayList<>();
         mPosition = new Position();
         mPosition.attach(this);
-        mAdapter = new TaskListAdapter(myList, tasks ,mPosition);
+        mAdapter = new TaskListAdapter(myList, tasks ,mPosition,mOnClickListener);
         Log.d(TAG, "리스트 추가");
 
         mRecyclerView.setAdapter(mAdapter);
@@ -106,7 +107,25 @@ public class ProjectInnerFragment extends Fragment implements Observer{
         return view;
     }
 
-    public View.OnClickListener mOnClickListener;
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    public View.OnClickListener mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.addTask:
+                    AddTaskDialog mAddTaskDialog = new AddTaskDialog(getContext(),
+                            "제목", // 제목,
+                            ProjectInnerFragment.this
+                             ); // 오른쪽 버튼 이벤트
+                    mAddTaskDialog.show();
+                    break;
+            }
+        }
+    };
 
     private JsonParserUtil<HashMap<String, Object>> parserUtil = new JsonParserUtil<HashMap<String, Object>>() {
         @Override
@@ -161,12 +180,14 @@ public class ProjectInnerFragment extends Fragment implements Observer{
         }
     };
 
+
     @Override
     public void update() {
         Log.d(TAG,"업데이트");
         HttpRequestTask mHttpRequestTask = new HttpRequestTask(getContext(), "GET", "", handler, 0);
         mHttpRequestTask.execute(RequestPref.pref + "/taskList/select/taskList/" + projectVo.getPno());
     }
+
 
     class MyItemDecoration extends RecyclerView.ItemDecoration {
         @Override

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -31,17 +32,19 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
     private RecyclerView.LayoutManager mLayoutManager_finish;
     List<TaskVO> tempTasks = new ArrayList<>();
     List<TaskVO> tempTasks_finish = new ArrayList<>();
+    private View.OnClickListener onClickListener;
 
-    public TaskListAdapter(List<TaskListVO> myList ,List<TaskVO> tasks,Position mPosition) {
+    public TaskListAdapter(List<TaskListVO> myList, List<TaskVO> tasks, Position mPosition, View.OnClickListener onClickListener) {
         this.myList = myList;
         this.tasks = tasks;
         this.mPosition = mPosition;
+        this.onClickListener = onClickListener;
     }
 
     @Override
     public TaskListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_list_layout,parent,false);
-        return new TaskListViewHolder(view);
+        return new TaskListViewHolder(view,onClickListener);
     }
 
     @Override
@@ -143,9 +146,6 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
     }
 
 
-
-
-
     protected class TaskListViewHolder extends RecyclerView.ViewHolder{
         TextView taskListName;
         RecyclerView mRecyclerView;
@@ -153,8 +153,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
         TextView finish_text_box;
         TaskAdapter mAdapter;
         TaskFinishAdapter mAdapter_finish;
+        Button taskAddBtn;
+        Button taskListSetting;
 
-        public TaskListViewHolder(final View itemView) {
+        public TaskListViewHolder(final View itemView, View.OnClickListener onClickListener) {
             super(itemView);
             finish_text_box = itemView.findViewById(R.id.finish_text_box);
             taskListName = itemView.findViewById(R.id.taskListName);
@@ -170,6 +172,12 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
 
             mAdapter = (TaskAdapter) mRecyclerView_finish.getAdapter();
             mAdapter_finish = (TaskFinishAdapter) mRecyclerView_finish.getAdapter();
+
+            taskAddBtn = itemView.findViewById(R.id.addTask);
+            taskAddBtn.setOnClickListener(onClickListener);
+            taskListSetting = itemView.findViewById(R.id.task_list_setting);
+            taskListSetting.setOnClickListener(onClickListener);
+
         }
 
     }
