@@ -101,6 +101,10 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
         return myList.size();
     }
 
+    public TaskListVO getItem(int position){
+        return  myList.get(position);
+    }
+
     public void  add(TaskListVO vo){
         myList.add(vo);
         notifyDataSetChanged();
@@ -174,10 +178,21 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskLi
             mAdapter_finish = (TaskFinishAdapter) mRecyclerView_finish.getAdapter();
 
             taskAddBtn = itemView.findViewById(R.id.addTask);
-            taskAddBtn.setOnClickListener(onClickListener);
+//            taskAddBtn.setOnClickListener(onClickListener);
             taskListSetting = itemView.findViewById(R.id.task_list_setting);
-            taskListSetting.setOnClickListener(onClickListener);
+            taskListSetting.setOnClickListener(new View.OnClickListener() {
 
+                @Override
+                public void onClick(View view) {
+
+                }
+            });
+            taskAddBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mPosition.addPosition(getAdapterPosition(),view.getId());
+                }
+            });
         }
 
     }

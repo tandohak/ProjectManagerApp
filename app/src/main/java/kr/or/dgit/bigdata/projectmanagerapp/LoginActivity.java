@@ -190,7 +190,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         // [START initialize_auth]
         mAuth = FirebaseAuth.getInstance();
         // [END initialize_auth]
-        revokeAccess();
+
         //로그아웃 시 로그인 연결 끊기
         isLogout = getIntent().getBooleanExtra("logout",false);
 

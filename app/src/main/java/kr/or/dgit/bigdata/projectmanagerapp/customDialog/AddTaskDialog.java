@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
@@ -15,18 +16,13 @@ import kr.or.dgit.bigdata.projectmanagerapp.R;
  */
 
 public class AddTaskDialog extends Dialog {
-
-    private TextView mTitleView;
-    private TextView mContentView;
-    private Button mLeftButton;
-    private Button mRightButton;
-    private String mTitle;
-    private String mContent;
+    private TextView dateTextView;
     private Button addMember;
     private Button addDate;
-    private View.OnClickListener mLeftClickListener;
-    private View.OnClickListener mRightClickListener;
-
+    private Button addTaskCloseBtn;
+    private Button makeTask;
+    private View.OnClickListener mOnClickListener;
+    private EditText taskname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,25 +35,37 @@ public class AddTaskDialog extends Dialog {
 
         setContentView(R.layout.custom_dialog_layout);
 
-        mTitleView = (TextView) findViewById(R.id.txt_title);
-        mContentView = (TextView) findViewById(R.id.txt_content);
-        mLeftButton = (Button) findViewById(R.id.btn_left);
-        mRightButton = (Button) findViewById(R.id.btn_right);
         addMember = findViewById(R.id.addMember);
         addDate= findViewById(R.id.addDate);
+        addTaskCloseBtn = findViewById(R.id.addTaskCloseBtn);
+        makeTask = findViewById(R.id.make_task);
+        dateTextView = findViewById(R.id.dateTextView);
+        taskname = findViewById(R.id.taskname);
 
-        // 제목과 내용을 생성자에서 셋팅한다.
-        mTitleView.setText(mTitle);
-        mContentView.setText(mContent);
+        dateTextView.setText("");
+
+        makeTask.setOnClickListener(mOnClickListener);
+        addMember.setOnClickListener(mOnClickListener);
+        addDate.setOnClickListener(mOnClickListener);
+        addTaskCloseBtn.setOnClickListener(mOnClickListener);
 
 
     }
+    public String getTaskName(){
+        return taskname.getText().toString();
+    }
+
+    public String getDate(){
+        return dateTextView.getText().toString();
+    }
+    public  void  updateDateTextView(String text){
+        dateTextView.setText(text);
+    }
 
     // 클릭버튼이 하나일때 생성자 함수로 클릭이벤트를 받는다.
-    public AddTaskDialog(Context context, String title, View.OnClickListener singleListener) {
+    public AddTaskDialog(Context context, View.OnClickListener singleListener) {
         super(context, android.R.style.Theme_Translucent_NoTitleBar);
-        this.mTitle = title;
-        this.mLeftClickListener = singleListener;
+        this.mOnClickListener = singleListener;
     }
 
 }

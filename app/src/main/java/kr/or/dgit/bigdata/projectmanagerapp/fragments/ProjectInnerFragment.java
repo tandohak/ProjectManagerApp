@@ -1,6 +1,7 @@
 package kr.or.dgit.bigdata.projectmanagerapp.fragments;
 
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -16,18 +17,27 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Member;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import kr.or.dgit.bigdata.projectmanagerapp.R;
 import kr.or.dgit.bigdata.projectmanagerapp.adapter.TaskListAdapter;
+import kr.or.dgit.bigdata.projectmanagerapp.customDialog.AddTasKListDialog;
+import kr.or.dgit.bigdata.projectmanagerapp.customDialog.TaskAddMemberDialog;
 import kr.or.dgit.bigdata.projectmanagerapp.customDialog.AddTaskDialog;
 import kr.or.dgit.bigdata.projectmanagerapp.customDialog.ProjectMakeDialog;
 import kr.or.dgit.bigdata.projectmanagerapp.domain.MemberVO;
@@ -47,7 +57,7 @@ import kr.or.dgit.bigdata.projectmanagerapp.observer.Position;
  * Created by ghddb on 2018-04-29.
  */
 
-public class ProjectInnerFragment extends Fragment implements Observer ,View.OnClickListener{
+public class ProjectInnerFragment extends Fragment implements Observer, View.OnClickListener {
     private RecyclerView mRecyclerView;
     private TaskListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -60,6 +70,10 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
     private String wcode;
     private ProjectVO projectVo;
     public Position mPosition;
+    AddTaskDialog mAddTaskDialog;
+    AddTasKListDialog addTasKListDialog;
+    TaskAddMemberDialog mTaskAddMemberDialog;
+    List<MemberVO> memList;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,10 +101,13 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
         HttpRequestTask mHttpRequestTask = new HttpRequestTask(view.getContext(), "GET", "", handler, 0);
         mHttpRequestTask.execute(RequestPref.pref + "/taskList/select/taskList/" + projectVo.getPno());
 
+        HttpRequestTask mHttpRequestTask2 = new HttpRequestTask(getContext(), "GET", "", handler, 2);
+        mHttpRequestTask2.execute(RequestPref.pref + "/member/memAssList/" + projectVo.getPno());
+
         tasks = new ArrayList<>();
         mPosition = new Position();
         mPosition.attach(this);
-        mAdapter = new TaskListAdapter(myList, tasks ,mPosition,mOnClickListener);
+        mAdapter = new TaskListAdapter(myList, tasks, mPosition, mOnClickListener);
         Log.d(TAG, "리스트 추가");
 
         mRecyclerView.setAdapter(mAdapter);
@@ -100,30 +117,135 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                addTasKListDialog = new AddTasKListDialog(getContext(), ProjectInnerFragment.this);
+                addTasKListDialog.show();
             }
         });
 
         return view;
     }
 
+    DatePickerDialog datePickerDialog;
+    Calendar dateAndTime = Calendar.getInstance();
+    SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+    List<MemberVO> checkListMember = new ArrayList<>();
+
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.addTaskCloseBtn:
+                mAddTaskDialog.dismiss();
+                checkListMember = new ArrayList<>();
+                date = "";
+                break;
+            case R.id.addMember:
+                mTaskAddMemberDialog = new TaskAddMemberDialog(getContext(), ProjectInnerFragment.this, projectVo.getPno(), checkListMember);
+                mTaskAddMemberDialog.show();
+                break;
+            case R.id.addDate:
+                Calendar c = Calendar.getInstance();
+                int years = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
 
+                datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
+                        String date = year + "-" + (monthOfYear + 1) + "-" + dayOfMonth + "00:00";
+                        dateAndTime.set(Calendar.YEAR, year);
+                        dateAndTime.set(Calendar.MONTH, monthOfYear);
+                        dateAndTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        updateDateAndTime();
+                    }
+                }, years, month, day);
+                datePickerDialog.show();
+
+                break;
+            case R.id.addMemberCloseBtn:
+                checkListMember = mTaskAddMemberDialog.getCheckListMember();
+
+                mTaskAddMemberDialog.dismiss();
+                Log.d(TAG, checkListMember.size() + "");
+                break;
+            case R.id.make_task:
+                Log.d(TAG,"MAEK _ TASK");
+                JSONObject obj = new JSONObject();
+                List<String> jobAssList = new ArrayList<>();
+
+                for (MemberVO memberVO: checkListMember){
+                    jobAssList.add(String.valueOf(memberVO.getMassno()));
+                }
+
+                for(MemberVO memberVO : memList){
+                    if(memberVO.getMno() == memVo.getMno()){
+                        memVo.setMassno(memberVO.getMassno());
+                        memVo.setFirstName(memberVO.getFirstName());
+                        memVo.setLastName(memberVO.getLastName());
+                    }
+                }
+
+                TaskListVO vo = mAdapter.getItem(position);
+                try {
+                    Log.d(TAG,memVo.toString());
+                    String taskname = mAddTaskDialog.getTaskName();
+                    String endDate = mAddTaskDialog.getDate();
+                    obj.put("jobAssList",jobAssList);
+                    obj.put("taskname",taskname);
+                    obj.put("endDate",endDate);
+                    obj.put("writer", memVo.getFirstName() + " " + memVo.getLastName());
+                    obj.put("massno",memVo.getMassno());
+                    obj.put("tlno",vo.getTlno());
+                    Log.d(TAG,memVo.getMassno()+"");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                HttpRequestTask mHttpRequestTask = new HttpRequestTask(getContext(), "POST", obj.toString(), handler, 1);
+                mHttpRequestTask.execute(RequestPref.pref + "/taskList/register/taskmake");
+
+                 break;
+            case R.id.make_taskList:
+                JSONObject obj2 = new JSONObject();
+                String taskListName = addTasKListDialog.getTaskListName();
+                if (taskListName==""|| taskListName == null){
+                    Toast.makeText(getContext(), "업무리스트 이름을 지정해 주세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                int list_order= mAdapter.getItemCount();
+                if(list_order<0){
+                    list_order = 0;
+                }
+                try {
+
+                    obj2.put("name",taskListName);
+                    obj2.put("pno",projectVo.getPno());
+                    obj2.put("list_order",list_order);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                HttpRequestTask mHttpRequestTask3 = new HttpRequestTask(getContext(), "POST", obj2.toString(), handler, 3);
+                mHttpRequestTask3.execute(RequestPref.pref + "/taskList/register/taskListmake");
+                break;
+        }
     }
 
-    public View.OnClickListener mOnClickListener = new View.OnClickListener() {
+    String date = "";
+
+    private void updateDateAndTime() {
+        date = mDateFormat.format(dateAndTime.getTime());
+        mAddTaskDialog.updateDateTextView(date);
+    }
+
+
+   public View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch (v.getId()){
+           /* switch (v.getId()) {
                 case R.id.addTask:
-                    AddTaskDialog mAddTaskDialog = new AddTaskDialog(getContext(),
-                            "제목", // 제목,
-                            ProjectInnerFragment.this
-                             ); // 오른쪽 버튼 이벤트
+                    mAddTaskDialog = new AddTaskDialog(getContext(), ProjectInnerFragment.this);
                     mAddTaskDialog.show();
                     break;
-            }
+            }*/
         }
     };
 
@@ -135,15 +257,15 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
             JSONArray memObj = order.getJSONArray("member");
             List<MemberVO> memberList = new ArrayList<>();
             Object obj = new JsonParserMemberVO().parsingJsonArray(memObj.toString());
-            if (obj != null){
+            if (obj != null) {
                 memberList = (List<MemberVO>) obj;
             }
             map.put("memberList", memberList);
 
             JSONArray taskListObj = order.getJSONArray("taskList");
             List<TaskListVO> taskList = new ArrayList<>();
-            obj =  new JsonParserTaskList().parsingJsonArray(taskListObj.toString());
-            if (obj != null){
+            obj = new JsonParserTaskList().parsingJsonArray(taskListObj.toString());
+            if (obj != null) {
                 taskList = (List<TaskListVO>) obj;
             }
             map.put("taskList", taskList);
@@ -151,7 +273,7 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
             JSONArray tasksObj = order.getJSONArray("tasks");
             obj = new JsonParserTaskVO().parsingJsonArray(tasksObj.toString());
             List<TaskVO> tasksTemp = new ArrayList<>();
-            if (obj != null){
+            if (obj != null) {
                 tasksTemp = (List<TaskVO>) obj;
             }
             map.put("tasks", tasksTemp);
@@ -176,14 +298,41 @@ public class ProjectInnerFragment extends Fragment implements Observer ,View.OnC
                     mAdapter.add(map);
                     mProgressBar.dismiss();
                     break;
+                case 1:
+                    res = (String) msg.obj;
+                    Log.d(TAG,res);
+                    mAddTaskDialog.dismiss();
+                    update();
+                    break;
+                case 2:
+                    res = (String) msg.obj;
+                    Log.d(TAG,res);
+                    JsonParserMemberVO jsonParser = new JsonParserMemberVO();
+                    memList = jsonParser.parsingJsonArray(res);
+                    break;
+                case 3:
+                    res = (String)msg.obj;
+                    Log.d(TAG,res);
+                    update();
+                    addTasKListDialog.dismiss();
+                    break;
             }
         }
     };
 
-
+    int position;
     @Override
     public void update() {
-        Log.d(TAG,"업데이트");
+        position = mPosition.getPosition();
+        int onclick= mPosition.getOnClickId();
+        switch (onclick){
+            case R.id.addTask:
+                mAddTaskDialog = new AddTaskDialog(getContext(), ProjectInnerFragment.this);
+                mAddTaskDialog.show();
+                mPosition.resetPosition();
+                break;
+        }
+        Log.d(TAG, "업데이트");
         HttpRequestTask mHttpRequestTask = new HttpRequestTask(getContext(), "GET", "", handler, 0);
         mHttpRequestTask.execute(RequestPref.pref + "/taskList/select/taskList/" + projectVo.getPno());
     }
