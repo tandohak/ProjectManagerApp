@@ -58,6 +58,7 @@ public class WorkspaceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_workspace,container,false);
 
+
         mRecyclerView = view.findViewById(R.id.project_list);
         mRecyclerView.setHasFixedSize(true);
         mLayoutManager = new LinearLayoutManager(view.getContext());

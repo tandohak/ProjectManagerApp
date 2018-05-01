@@ -1,6 +1,5 @@
 package kr.or.dgit.bigdata.projectmanagerapp;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -37,10 +36,10 @@ public class JoinEmailActivity extends BaseActivity {
             HttpRequestTask mHttpRequestTask = new HttpRequestTask(JoinEmailActivity.this ,"POST",email,handler,0);
             mHttpRequestTask.execute(RequestPref.pref+"/invite/emailAuth");
         }else if(v.getId() == R.id.backBtn){
-            Intent intent = new Intent(JoinEmailActivity.this,LoginActivity.class);
+            /*Intent intent = new Intent(JoinEmailActivity.this,LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            startActivity(intent);*/
             finish();
         }
     }

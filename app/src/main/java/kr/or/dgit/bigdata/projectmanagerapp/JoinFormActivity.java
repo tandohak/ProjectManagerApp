@@ -136,10 +136,11 @@ public class JoinFormActivity extends BaseActivity {
 
     public void onClick(View v) {
         if (v.getId() == R.id.backBtn) {
-            Intent intent = new Intent(JoinFormActivity.this, LoginActivity.class);
+            /*Intent intent = new Intent(JoinFormActivity.this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            intent.putExtra("logout",false);*/
+
             finish();
         } else if (v.getId() == R.id.makeWorkspace) {
             infoFormBox.setVisibility(View.GONE);

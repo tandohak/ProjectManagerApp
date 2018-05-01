@@ -5,5 +5,6 @@ package kr.or.dgit.bigdata.projectmanagerapp.network;
  */
 
 public class RequestPref {
-    public static final String pref = "http://192.168.0.50:8080/projectManager";
+//    public static final String pref = "http://192.168.0.50:8080/projectManager";
+      public static final String pref = "http://hongyoonpyo.cafe24.com/projectManager";
 }

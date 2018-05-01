@@ -37,7 +37,7 @@ import kr.or.dgit.bigdata.projectmanagerapp.network.HttpRequestTask;
 import kr.or.dgit.bigdata.projectmanagerapp.network.RequestPref;
 import kr.or.dgit.bigdata.projectmanagerapp.network.util.JsonParserUtil;
 
-public class LoginActivity extends BaseActivity implements View.OnClickListener{
+public class LoginActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "LoginActivity";
     private static final int RC_SIGN_IN = 9001;
 
@@ -48,25 +48,25 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private GoogleSignInClient mGoogleSignInClient;
     boolean isLogin = false;// 이메일 로그인 확인용
 
-    private JsonParserUtil<HashMap<String,Object>> jsonParserUtil = new JsonParserUtil() {
+    private JsonParserUtil<HashMap<String, Object>> jsonParserUtil = new JsonParserUtil() {
         @Override
-        public HashMap<String, Object> itemParse(JSONObject order) throws JSONException{
+        public HashMap<String, Object> itemParse(JSONObject order) throws JSONException {
             HashMap<String, Object> map = new HashMap<>();
 
             JSONObject userObj = order.getJSONObject("userVo");
 
             UserVO vo = new UserVO();
 
-            JSONObject user  = order.getJSONObject("userVo");
+            JSONObject user = order.getJSONObject("userVo");
             vo.setUno(user.getInt("uno"));
             vo.setEmail(user.getString("email"));
             vo.setFirstName(user.getString("firstName"));
             vo.setLastName(user.getString("lastName"));
             vo.setGrade(user.getInt("grade"));
             vo.setPhotoPath(user.getString("photoPath"));
-            map.put("userVo",vo);
+            map.put("userVo", vo);
 
-            JSONObject workspace  = order.getJSONObject("wvo");
+            JSONObject workspace = order.getJSONObject("wvo");
 
             WorkspaceVO wvo = new WorkspaceVO();
             wvo.setWcode(workspace.getString("wcode"));
@@ -75,7 +75,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             wvo.setUno(workspace.getInt("uno"));
 
 
-            map.put("workVo",wvo);
+            map.put("workVo", wvo);
             MemberVO memVo = new MemberVO();
 
             JSONObject memObj = order.getJSONObject("memVo");
@@ -83,7 +83,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             memVo.setUno(memObj.getInt("uno"));
             memVo.setWcode(memObj.getString("wcode"));
             memVo.setMemGrade(memObj.getInt("memGrade"));
-            Log.d(TAG,memVo.toString());
+            Log.d(TAG, memVo.toString());
             map.put("memVo", memVo);
             return map;
         }
@@ -94,16 +94,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0: {
-                    String result = (String)msg.obj;
+                    String result = (String) msg.obj;
                     hideProgressDialog();
-                    if(!result.equals("")){
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                    if (!result.equals("")) {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 
-                        HashMap<String,Object> map =  jsonParserUtil.parsingJson(result);
+                        HashMap<String, Object> map = jsonParserUtil.parsingJson(result);
 
-                        intent.putExtra("userVo",(UserVO)map.get("userVo"));
-                        intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
-                        intent.putExtra("memVo",(MemberVO)map.get("memVo"));
+                        intent.putExtra("userVo", (UserVO) map.get("userVo"));
+                        intent.putExtra("workVo", (WorkspaceVO) map.get("workVo"));
+                        intent.putExtra("memVo", (MemberVO) map.get("memVo"));
                         startActivity(intent);
 
 
@@ -111,48 +111,50 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                         overridePendingTransition(0, 0);
 
 
-                    }else{
-                        if(!isLogin){
-                        Intent intent = new Intent(LoginActivity.this,JoinFormActivity.class);
-                        FirebaseUser user = mAuth.getCurrentUser();
+                    } else {
+                        if (!isLogin) {
+                            Intent intent = new Intent(LoginActivity.this, JoinFormActivity.class);
+                            FirebaseUser user = mAuth.getCurrentUser();
 
-                        String email = user.getEmail();
-                        String displayName = user.getDisplayName();
+                            String email = user.getEmail();
+                            String displayName = user.getDisplayName();
 
-                        Log.d(TAG,displayName);
+                            Log.d(TAG, displayName);
 
-                        intent.putExtra("displayName",displayName);
-                        intent.putExtra("email",email);
-                        startActivity(intent);
+                            intent.putExtra("displayName", displayName);
+                            intent.putExtra("email", email);
+                            startActivity(intent);
+                            revokeAccess();
+                            removePreferences();
                         }
                     }
 
                     break;
                 }
                 case 1: {
-                    String result = (String)msg.obj;
+                    String result = (String) msg.obj;
                     hideProgressDialog();
-                    if(!result.equals("")){
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                    if (!result.equals("")) {
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
 
-                        HashMap<String,Object> map =  jsonParserUtil.parsingJson(result);
-                        UserVO userVo = (UserVO)map.get("userVo");
-                        intent.putExtra("userVo",userVo);
-                        intent.putExtra("workVo",(WorkspaceVO)map.get("workVo"));
-                        intent.putExtra("memVo",(MemberVO)map.get("memVo"));
+                        HashMap<String, Object> map = jsonParserUtil.parsingJson(result);
+                        UserVO userVo = (UserVO) map.get("userVo");
+                        intent.putExtra("userVo", userVo);
+                        intent.putExtra("workVo", (WorkspaceVO) map.get("workVo"));
+                        intent.putExtra("memVo", (MemberVO) map.get("memVo"));
                         startActivity(intent);
 
-                        SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+                        SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
                         SharedPreferences.Editor editor = pref.edit();
                         editor.clear();
-                        editor.putBoolean("isLogin",true);
+                        editor.putBoolean("isLogin", true);
 
-                        Log.d(TAG,"add email"+userVo.getEmail());
-                        editor.putString("email",userVo.getEmail());
+                        Log.d(TAG, "add email" + userVo.getEmail());
+                        editor.putString("email", userVo.getEmail());
                         editor.commit();
 
                         LoginActivity.this.finish();
-                    }else{
+                    } else {
                         Toast.makeText(LoginActivity.this, "로그인에 실패하였습니다.", Toast.LENGTH_SHORT).show();
                     }
 
@@ -174,7 +176,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         findViewById(R.id.join_button).setOnClickListener(this);
 
         //이메일 로그인 여부 확인
-        SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
 
 
         // [START config_signin]
@@ -184,7 +186,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 .requestEmail()
                 .build();
         // [END config_signin]
-        Log.d(TAG,R.string.default_web_client_id+" -- GoogleActivity");
+        Log.d(TAG, R.string.default_web_client_id + " -- GoogleActivity");
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         // [START initialize_auth]
@@ -192,20 +194,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         // [END initialize_auth]
 
         //로그아웃 시 로그인 연결 끊기
-        isLogout = getIntent().getBooleanExtra("logout",false);
+        isLogout = getIntent().getBooleanExtra("logout", false);
 
-        if(isLogout){
+        if (isLogout == true) {
             revokeAccess();
             removePreferences();
         }
 
-        isLogin = pref.getBoolean("isLogin",false);
-        Log.d(TAG, isLogin+"");
-        if(isLogin){
-            String email = pref.getString("email","");
-            Log.d(TAG,"email"+email);
-            HttpRequestTask mHttpRequestTask = new HttpRequestTask(this ,"POST",email,handler,0);
-            mHttpRequestTask.execute(RequestPref.pref+"/register/googleLogin");
+        isLogin = pref.getBoolean("isLogin", false);
+        Log.d(TAG, isLogin + "");
+        if (isLogin) {
+            String email = pref.getString("email", "");
+            Log.d(TAG, "email" + email);
+            HttpRequestTask mHttpRequestTask = new HttpRequestTask(this, "POST", email, handler, 0);
+            mHttpRequestTask.execute(RequestPref.pref + "/register/googleLogin");
         }
 
     }
@@ -316,10 +318,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (user != null) {
             String email = user.getEmail();
 
-            HttpRequestTask mHttpRequestTask = new HttpRequestTask(this ,"POST",email,handler,0);
-            mHttpRequestTask.execute(RequestPref.pref+"/register/googleLogin");
+            HttpRequestTask mHttpRequestTask = new HttpRequestTask(this, "POST", email, handler, 0);
+            mHttpRequestTask.execute(RequestPref.pref + "/register/googleLogin");
         } else {
-            if(isLogout){
+            if (isLogout) {
                 Toast.makeText(this, "로그 아웃하였습니다.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -331,7 +333,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         if (i == R.id.sign_in_button) {
             signIn();
         } else if (i == R.id.email_sign_in_button) {
-            Log.d(TAG,"email_sign_in_button click");
+            Log.d(TAG, "email_sign_in_button click");
 
             EditText email = findViewById(R.id.email);
             EditText password = findViewById(R.id.password);
@@ -339,25 +341,25 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             String query = "";
             JSONObject order = new JSONObject();
             try {
-                order.put("email",email.getText().toString());
-                order.put("password",password.getText().toString());
+                order.put("email", email.getText().toString());
+                order.put("password", password.getText().toString());
                 query = order.toString();
-                Log.d(TAG,query);
+                Log.d(TAG, query);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             showProgressDialog();
-            HttpRequestTask mHttpRequestTask = new HttpRequestTask(LoginActivity.this ,"POST",query,handler,1);
-            mHttpRequestTask.execute(RequestPref.pref+"/register/emailLogin");
+            HttpRequestTask mHttpRequestTask = new HttpRequestTask(LoginActivity.this, "POST", query, handler, 1);
+            mHttpRequestTask.execute(RequestPref.pref + "/register/emailLogin");
 
-        }else if(v.getId() == R.id.join_button){
+        } else if (v.getId() == R.id.join_button) {
             Intent intent = new Intent(LoginActivity.this, JoinEmailActivity.class);
             startActivity(intent);
         }
     }
 
-    private void removePreferences(){
-        SharedPreferences pref = getSharedPreferences("pref",MODE_PRIVATE);
+    private void removePreferences() {
+        SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
         editor.clear();
         editor.commit();
